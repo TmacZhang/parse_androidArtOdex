@@ -7,7 +7,6 @@ import com.demo.parseodex.ElfType64.elf64_shdr;
 import com.demo.parseodex.ElfType64.elf64_sym;
 import com.demo.parseodex.OatDataSection.DexFileInfo;
 
-
 public class ParseOatFile {
     public static ElfType32 type_32 = new ElfType32();
     public static ElfType64 type_64 = new ElfType64();
@@ -20,7 +19,6 @@ public class ParseOatFile {
             System.out.println("read file byte failed...");
             return;
         }
-
         parseOat(fileByteArys);
     }
 
@@ -29,7 +27,6 @@ public class ParseOatFile {
         System.out.println("+++++++++++++++++++Elf Header+++++++++++++++++");
         parseHeader(fileByteArys, 0);
         System.out.println("+++++++++++++++++++Elf Section片段+++++++++++++++++");
-        
         long s_header_offset =0 ;
         if(is64){
             s_header_offset = type_64.hdr.e_shoff;
@@ -59,54 +56,53 @@ public class ParseOatFile {
         }
     }
 
-
     private static void parseOatData(byte[] fileByteArys,
             long oatDataSymOffset, long oatDataSymSize) {
         OatDataSection dataSection = new OatDataSection();
-        int offset = (int) oatDataSymOffset;
-        dataSection.oatHeader.magic = Utils.copyBytes(fileByteArys, offset, 4);
+        int oatDataOffset = (int) oatDataSymOffset;
+        dataSection.oatHeader.magic = Utils.copyBytes(fileByteArys, oatDataOffset, 4);
         dataSection.oatHeader.version = Utils.copyBytes(fileByteArys,
-                offset + 4, 4);
+                oatDataOffset + 4, 4);
         dataSection.oatHeader.adler32_checksum = Utils.byte2Int(Utils
-                .copyBytes(fileByteArys, offset + 8, 4));
+                .copyBytes(fileByteArys, oatDataOffset + 8, 4));
         dataSection.oatHeader.instruction_set = Utils.byte2Int(Utils.copyBytes(
-                fileByteArys, offset + 12, 4));
+                fileByteArys, oatDataOffset + 12, 4));
         dataSection.oatHeader.instruction_set_features_bitmap = Utils
-                .byte2Int(Utils.copyBytes(fileByteArys, offset + 16, 4));
+                .byte2Int(Utils.copyBytes(fileByteArys, oatDataOffset + 16, 4));
         dataSection.oatHeader.dex_file_count = Utils.byte2Int(Utils.copyBytes(
-                fileByteArys, offset + 20, 4));
+                fileByteArys, oatDataOffset + 20, 4));
         dataSection.oatHeader.executable_offset = Utils.byte2Int(Utils
-                .copyBytes(fileByteArys, offset + 24, 4));
+                .copyBytes(fileByteArys, oatDataOffset + 24, 4));
         dataSection.oatHeader.interpreter_to_interpreter_bridge_offset = Utils
-                .byte2Int(Utils.copyBytes(fileByteArys, offset + 28, 4));
+                .byte2Int(Utils.copyBytes(fileByteArys, oatDataOffset + 28, 4));
         dataSection.oatHeader.interpreter_to_compiled_code_bridge_offset = Utils
-                .byte2Int(Utils.copyBytes(fileByteArys, offset + 32, 4));
+                .byte2Int(Utils.copyBytes(fileByteArys, oatDataOffset + 32, 4));
         dataSection.oatHeader.jni_dlsym_lookup_offset = Utils
-                .byte2Int(Utils.copyBytes(fileByteArys, offset + 36, 4));
+                .byte2Int(Utils.copyBytes(fileByteArys, oatDataOffset + 36, 4));
         dataSection.oatHeader.quick_generic_jni_trampoline_offset = Utils
-                .byte2Int(Utils.copyBytes(fileByteArys, offset + 40, 4));
+                .byte2Int(Utils.copyBytes(fileByteArys, oatDataOffset + 40, 4));
         dataSection.oatHeader.quick_imt_conflict_trampoline_offset = Utils
-                .byte2Int(Utils.copyBytes(fileByteArys, offset + 44, 4));
+                .byte2Int(Utils.copyBytes(fileByteArys, oatDataOffset + 44, 4));
         dataSection.oatHeader.quick_resolution_trampoline_offset = Utils
-                .byte2Int(Utils.copyBytes(fileByteArys, offset + 48, 4));
+                .byte2Int(Utils.copyBytes(fileByteArys, oatDataOffset + 48, 4));
         dataSection.oatHeader.quick_to_interpreter_bridge_offset = Utils
-                .byte2Int(Utils.copyBytes(fileByteArys, offset + 52, 4));
+                .byte2Int(Utils.copyBytes(fileByteArys, oatDataOffset + 52, 4));
         dataSection.oatHeader.image_patch_delta = Utils
-                .byte2Int(Utils.copyBytes(fileByteArys, offset + 56, 4));
+                .byte2Int(Utils.copyBytes(fileByteArys, oatDataOffset + 56, 4));
         dataSection.oatHeader.image_file_location_oat_checksum = Utils
-                .byte2Int(Utils.copyBytes(fileByteArys, offset + 60, 4));
+                .byte2Int(Utils.copyBytes(fileByteArys, oatDataOffset + 60, 4));
         dataSection.oatHeader.image_file_location_oat_data_begin = Utils
-                .byte2Int(Utils.copyBytes(fileByteArys, offset + 64, 4));
+                .byte2Int(Utils.copyBytes(fileByteArys, oatDataOffset + 64, 4));
         dataSection.oatHeader.key_value_store_size = Utils.byte2Int(Utils
-                .copyBytes(fileByteArys, offset + 68, 4));
+                .copyBytes(fileByteArys, oatDataOffset + 68, 4));
         int key_value_store_size = dataSection.oatHeader.key_value_store_size;
         dataSection.oatHeader.key_value_store = new byte[key_value_store_size];
         dataSection.oatHeader.key_value_store = Utils.copyBytes(fileByteArys,
-                offset + 72, key_value_store_size);
+                oatDataOffset + 72, key_value_store_size);
         System.out.println("dex_file_count == " +dataSection.oatHeader.dex_file_count);
         System.out.println("+++++++++++++++++++oat DexFileInfo片段+++++++++++++++++");
         DexFileInfo dexFileInfo = new DexFileInfo();
-        int dexFileOffset = offset + 72 + key_value_store_size;
+        int dexFileOffset = oatDataOffset + 72 + key_value_store_size;
         dexFileInfo.dex_file_location_size = Utils.byte2Int(Utils.copyBytes(
                 fileByteArys, dexFileOffset, 4));
         dexFileInfo.dex_file_location_data = new byte[dexFileInfo.dex_file_location_size];
@@ -122,17 +118,43 @@ public class ParseOatFile {
                 + Integer.toHexString(dexFileInfo.dex_file_offset));
         System.out.println("oatdata的dex_file_offset绝对偏移地址 = "
                 + Integer.toHexString(dexFileInfo.dex_file_offset
-                        + offset));
+                        + oatDataOffset));
         System.out.println("++++++++++++++++++++解析dex  header++++++++++++++");
         //解析Dex 只需要长度就可以取出来啦，因为已经知道偏移量了。
-        int dexOffset= dexFileInfo.dex_file_offset+ offset;
+        int dexOffset= dexFileInfo.dex_file_offset+ oatDataOffset;
         HeaderType headerType = praseDexHeader(fileByteArys, dexOffset);
         System.out.println("拷贝dex++++++++++++++++++++++++++++++++++++++");
         File dexFile = new File("real.dex");
         byte [] dexBytes= new byte[headerType.file_size];
         System.arraycopy(fileByteArys, dexOffset, dexBytes, 0, headerType.file_size);
+        System.out.println("11 :"+Integer.toHexString(dexOffset + headerType.file_size));
         System.out.println("dexFile = " +dexFile.getAbsolutePath());
         Utils.saveFile(dexFile.getAbsolutePath(), dexBytes);
+        //
+        int class_defs_size = headerType.class_defs_size;
+        //偏移值加上OAT文件的oatdata段的开始位置后，就可以得到目标类的所有方法的本地机器指令信息,即得到OatClass信息
+        int methodsOffsets = dexFileOffset + 4
+                + dexFileInfo.dex_file_location_size + 4 + 4;
+        dexFileInfo.methods_offsets_pointer = new int[class_defs_size];
+        System.out.println("class_defs_size = " + class_defs_size
+                + " methodsOffsets=" + methodsOffsets);
+        for (int i = 0; i < class_defs_size; i++) {
+            dexFileInfo.methods_offsets_pointer[i] = Utils.byte2Int(Utils
+                    .copyBytes(fileByteArys, methodsOffsets + 4 * i, 4)) + oatDataOffset;
+            if (i < 10) {
+                System.out.println("+++++++methods_offsets_pointer+++++++++++++");
+                System.out.println(Integer
+                        .toHexString(dexFileInfo.methods_offsets_pointer[i]));
+            }
+            if (i == class_defs_size - 1) {
+                System.out
+                        .println("methodsOffsets + 4 * i = "
+                                + Integer.toHexString(methodsOffsets + 4 * i)
+                                + "||"
+                                + Integer
+                                        .toHexString(dexFileInfo.methods_offsets_pointer[i]));
+            }
+        }
     }
 
     public static HeaderType praseDexHeader(byte[] byteSrc, int offset) {
@@ -231,7 +253,6 @@ public class ParseOatFile {
 
         System.out.println("header:" + headerType);
         return headerType;
-
     }
 
     private static void parseDynSymList64(byte[] fileByteArys,
@@ -243,8 +264,6 @@ public class ParseOatFile {
             System.arraycopy(fileByteArys, s_header_offset + i *symSize, res, 0, symSize);
             type_64.symList.add(parseDynSym64(res));
         }
-      
-        
     }
 
     private static elf64_sym parseDynSym64(byte[] res) {
@@ -318,11 +337,7 @@ public class ParseOatFile {
          * e_ehsize; public short e_phentsize; public short e_phnum; public
          * short e_shentsize; public short e_shnum; public short e_shstrndx;
          */
-
     }
-    
-    
-    
 
     /**
      * 解析段头信息内容
@@ -360,8 +375,7 @@ public class ParseOatFile {
         shdr.sh_entsize = Utils.copyBytes(header, 36, 4);
         return shdr;
     }
-    
-    
+
     /**
      * 解析段头信息内容
      */
