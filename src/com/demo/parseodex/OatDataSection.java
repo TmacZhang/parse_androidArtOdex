@@ -53,9 +53,9 @@ public class OatDataSection {
     }
 
     public static class OatClassType {
-        public int kOatClassAllCompiled = 0;
-        public int kOatClassSomeCompiled = 1;
-        public int kOatClassNoneCompiled = 2;
-        public int kOatClassMax = 3;
+        public static int kOatClassAllCompiled = 0;
+        public static int kOatClassSomeCompiled = 1;
+        public static int kOatClassNoneCompiled = 2;
+        public static int kOatClassMax = 3;
     }
 }

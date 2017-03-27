@@ -6,6 +6,8 @@ import com.demo.parseodex.ElfType32.elf32_shdr;
 import com.demo.parseodex.ElfType64.elf64_shdr;
 import com.demo.parseodex.ElfType64.elf64_sym;
 import com.demo.parseodex.OatDataSection.DexFileInfo;
+import com.demo.parseodex.OatDataSection.OatClass;
+import com.demo.parseodex.OatDataSection.OatClassType;
 
 public class ParseOatFile {
     public static ElfType32 type_32 = new ElfType32();
@@ -130,19 +132,28 @@ public class ParseOatFile {
         System.out.println("11 :"+Integer.toHexString(dexOffset + headerType.file_size));
         System.out.println("dexFile = " +dexFile.getAbsolutePath());
         Utils.saveFile(dexFile.getAbsolutePath(), dexBytes);
-        //
+        parseOatClass(fileByteArys, oatDataOffset, dexFileInfo, dexFileOffset,
+                headerType);
+    }
+
+    private static void parseOatClass(byte[] fileByteArys, int oatDataOffset,
+            DexFileInfo dexFileInfo, int dexFileOffset, HeaderType headerType) {
+        // 解析OatClass
         int class_defs_size = headerType.class_defs_size;
-        //偏移值加上OAT文件的oatdata段的开始位置后，就可以得到目标类的所有方法的本地机器指令信息,即得到OatClass信息
+        // 偏移值加上OAT文件的oatdata段的开始位置后，就可以得到目标类的所有方法的本地机器指令信息,即得到OatClass信息
         int methodsOffsets = dexFileOffset + 4
                 + dexFileInfo.dex_file_location_size + 4 + 4;
         dexFileInfo.methods_offsets_pointer = new int[class_defs_size];
         System.out.println("class_defs_size = " + class_defs_size
-                + " methodsOffsets=" + methodsOffsets);
+                + " methodsOffsets=" + Integer.toHexString(methodsOffsets));
+        OatClass[] oatClasses = new OatClass[class_defs_size];
         for (int i = 0; i < class_defs_size; i++) {
             dexFileInfo.methods_offsets_pointer[i] = Utils.byte2Int(Utils
-                    .copyBytes(fileByteArys, methodsOffsets + 4 * i, 4)) + oatDataOffset;
+                    .copyBytes(fileByteArys, methodsOffsets + 4 * i, 4))
+                    + oatDataOffset;
             if (i < 10) {
-                System.out.println("+++++++methods_offsets_pointer+++++++++++++");
+                System.out
+                        .println("+++++++methods_offsets_pointer+++++++++++++");
                 System.out.println(Integer
                         .toHexString(dexFileInfo.methods_offsets_pointer[i]));
             }
@@ -153,6 +164,24 @@ public class ParseOatFile {
                                 + "||"
                                 + Integer
                                         .toHexString(dexFileInfo.methods_offsets_pointer[i]));
+                oatClasses[i] = new OatClass();
+                oatClasses[i].status_ = Utils.byte2Short(Utils
+                        .copyBytes(fileByteArys,
+                                dexFileInfo.methods_offsets_pointer[i], 2));
+                oatClasses[i].type_ = Utils.byte2Short(Utils.copyBytes(
+                        fileByteArys,
+                        dexFileInfo.methods_offsets_pointer[i] + 2, 2));
+                if (oatClasses[i].type_ == OatClassType.kOatClassSomeCompiled) {
+                    oatClasses[i].method_bitmap_size_ = Utils.byte2Short(Utils
+                            .copyBytes(fileByteArys,
+                                    dexFileInfo.methods_offsets_pointer[i] + 4,
+                                    4));
+                    oatClasses[i].method_bitmap_ = Utils.byte2Short(Utils
+                            .copyBytes(fileByteArys,
+                                    dexFileInfo.methods_offsets_pointer[i] + 8,
+                                    4));
+                } else {
+                }
             }
         }
     }
