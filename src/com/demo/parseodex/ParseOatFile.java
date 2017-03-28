@@ -62,6 +62,48 @@ public class ParseOatFile {
             long oatDataSymOffset, long oatDataSymSize) {
         OatDataSection dataSection = new OatDataSection();
         int oatDataOffset = (int) oatDataSymOffset;
+        int key_value_store_size = parseOatHeader(fileByteArys, dataSection,
+                oatDataOffset);
+        System.out.println("dex_file_count == " +dataSection.oatHeader.dex_file_count);
+        System.out.println("+++++++++++++++++++oat DexFileInfo片段+++++++++++++++++");
+        DexFileInfo dexFileInfo = new DexFileInfo();
+        int dexFileOffset = oatDataOffset + 72 + key_value_store_size;
+        dexFileInfo.dex_file_location_size = Utils.byte2Int(Utils.copyBytes(
+                fileByteArys, dexFileOffset, 4));
+        dexFileInfo.dex_file_location_data = new byte[dexFileInfo.dex_file_location_size];
+        dexFileInfo.dex_file_location_data = Utils.copyBytes(fileByteArys,
+                dexFileOffset + 4, dexFileInfo.dex_file_location_size);
+        dexFileInfo.dex_file_checksum = Utils.byte2Int(Utils.copyBytes(
+                fileByteArys, dexFileOffset + 4
+                        + dexFileInfo.dex_file_location_size, 4));
+        dexFileInfo.dex_file_offset = Utils.byte2Int(Utils.copyBytes(
+                fileByteArys, dexFileOffset + 4
+                        + dexFileInfo.dex_file_location_size + 4, 4));
+        System.out.println("oatdata的dex_file_offset相对偏移地址 = "
+                + Integer.toHexString(dexFileInfo.dex_file_offset));
+        System.out.println("oatdata的dex_file_offset绝对偏移地址 = "
+                + Integer.toHexString(dexFileInfo.dex_file_offset
+                        + oatDataOffset));
+        System.out.println("++++++++++++++++++++解析dex  header++++++++++++++");
+        //解析Dex 只需要长度就可以取出来啦，因为已经知道偏移量了。
+        int dexOffset= dexFileInfo.dex_file_offset+ oatDataOffset;
+        HeaderType headerType = praseDexHeader(fileByteArys, dexOffset);
+        System.out.println("拷贝dex++++++++++++++++++++++++++++++++++++++");
+        File dexFile = new File("real.dex");
+        byte [] dexBytes= new byte[headerType.file_size];
+        System.arraycopy(fileByteArys, dexOffset, dexBytes, 0, headerType.file_size);
+        System.out.println("dexFile end :"+Integer.toHexString(dexOffset + headerType.file_size));
+        System.out.println("dexFile = " +dexFile.getAbsolutePath());
+        Utils.saveFile(dexFile.getAbsolutePath(), dexBytes);
+        // 解析OatClass
+        parseOatClass(fileByteArys, oatDataOffset, dexFileInfo, dexFileOffset,
+                headerType);
+        //接着OatData字段是Maps,通过Oat_write.cc的WriteMaps()写入
+        // GcMap,MappingTable,VmapTable
+    }
+
+    private static int parseOatHeader(byte[] fileByteArys,
+            OatDataSection dataSection, int oatDataOffset) {
         dataSection.oatHeader.magic = Utils.copyBytes(fileByteArys, oatDataOffset, 4);
         dataSection.oatHeader.version = Utils.copyBytes(fileByteArys,
                 oatDataOffset + 4, 4);
@@ -101,44 +143,11 @@ public class ParseOatFile {
         dataSection.oatHeader.key_value_store = new byte[key_value_store_size];
         dataSection.oatHeader.key_value_store = Utils.copyBytes(fileByteArys,
                 oatDataOffset + 72, key_value_store_size);
-        System.out.println("dex_file_count == " +dataSection.oatHeader.dex_file_count);
-        System.out.println("+++++++++++++++++++oat DexFileInfo片段+++++++++++++++++");
-        DexFileInfo dexFileInfo = new DexFileInfo();
-        int dexFileOffset = oatDataOffset + 72 + key_value_store_size;
-        dexFileInfo.dex_file_location_size = Utils.byte2Int(Utils.copyBytes(
-                fileByteArys, dexFileOffset, 4));
-        dexFileInfo.dex_file_location_data = new byte[dexFileInfo.dex_file_location_size];
-        dexFileInfo.dex_file_location_data = Utils.copyBytes(fileByteArys,
-                dexFileOffset + 4, dexFileInfo.dex_file_location_size);
-        dexFileInfo.dex_file_checksum = Utils.byte2Int(Utils.copyBytes(
-                fileByteArys, dexFileOffset + 4
-                        + dexFileInfo.dex_file_location_size, 4));
-        dexFileInfo.dex_file_offset = Utils.byte2Int(Utils.copyBytes(
-                fileByteArys, dexFileOffset + 4
-                        + dexFileInfo.dex_file_location_size + 4, 4));
-        System.out.println("oatdata的dex_file_offset相对偏移地址 = "
-                + Integer.toHexString(dexFileInfo.dex_file_offset));
-        System.out.println("oatdata的dex_file_offset绝对偏移地址 = "
-                + Integer.toHexString(dexFileInfo.dex_file_offset
-                        + oatDataOffset));
-        System.out.println("++++++++++++++++++++解析dex  header++++++++++++++");
-        //解析Dex 只需要长度就可以取出来啦，因为已经知道偏移量了。
-        int dexOffset= dexFileInfo.dex_file_offset+ oatDataOffset;
-        HeaderType headerType = praseDexHeader(fileByteArys, dexOffset);
-        System.out.println("拷贝dex++++++++++++++++++++++++++++++++++++++");
-        File dexFile = new File("real.dex");
-        byte [] dexBytes= new byte[headerType.file_size];
-        System.arraycopy(fileByteArys, dexOffset, dexBytes, 0, headerType.file_size);
-        System.out.println("11 :"+Integer.toHexString(dexOffset + headerType.file_size));
-        System.out.println("dexFile = " +dexFile.getAbsolutePath());
-        Utils.saveFile(dexFile.getAbsolutePath(), dexBytes);
-        parseOatClass(fileByteArys, oatDataOffset, dexFileInfo, dexFileOffset,
-                headerType);
+        return key_value_store_size;
     }
 
     private static void parseOatClass(byte[] fileByteArys, int oatDataOffset,
             DexFileInfo dexFileInfo, int dexFileOffset, HeaderType headerType) {
-        // 解析OatClass
         int class_defs_size = headerType.class_defs_size;
         // 偏移值加上OAT文件的oatdata段的开始位置后，就可以得到目标类的所有方法的本地机器指令信息,即得到OatClass信息
         int methodsOffsets = dexFileOffset + 4
@@ -181,6 +190,7 @@ public class ParseOatFile {
                                     dexFileInfo.methods_offsets_pointer[i] + 8,
                                     4));
                 } else {
+                   
                 }
             }
         }

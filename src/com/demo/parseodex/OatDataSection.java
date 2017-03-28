@@ -46,9 +46,11 @@ public class OatDataSection {
          */
         public short type_;
         // 只有type == kOatClassSomeCompiled(1)，下面两个才有意义
-        public int method_bitmap_size_;
+        public int method_bitmap_size_;// 00 00 00 04
+        // 4位16进制数字，比如00 00 03 FE，转化为2进制为11 1111 1110，0表示没有compiled
+        // method，1表示这个index的方法是compiled
         public int method_bitmap_;
-        // 所有compiled方法的code_offset,具体有多少个，只能用(下一个oatclass - 当前)/4
+        // 所有compiled方法的code_offset,具体有多少个，用(下一个oatclass - 当前)/4
         public int[] code_offsets;
     }
 
