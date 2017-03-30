@@ -187,14 +187,14 @@ public class ElfType64 {
         public int sh_info;
         public long sh_addralign;
         public long sh_entsize;
-        
-        
-        public int getSize() {
+
+        public static int getSize() {
+            //64
             return 4 + 4 + 8 + 8 + 8 + 8 + 4 + 4 + 8 + 8;
         }
+        
         @Override
         public String toString() {
-           
             return "\n sh_name = " +sh_name
             +" sh_type ="+sh_type
             +" sh_flags ="+sh_flags

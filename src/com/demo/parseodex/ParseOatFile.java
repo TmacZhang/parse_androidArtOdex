@@ -94,6 +94,8 @@ public class ParseOatFile {
         System.arraycopy(fileByteArys, dexOffset, dexBytes, 0, headerType.file_size);
         System.out.println("dexFile end :"+Integer.toHexString(dexOffset + headerType.file_size));
         System.out.println("dexFile = " +dexFile.getAbsolutePath());
+        //从Oat中取出来的dex文件和原始dex文件并不是完全一样的，因为在dex2oat过程中，已经将一些指令进行了替换
+        //比如将 invoke-virtual ==>invoke-virtual-quick 指令
         Utils.saveFile(dexFile.getAbsolutePath(), dexBytes);
         // 解析OatClass
         parseOatClass(fileByteArys, oatDataOffset, dexFileInfo, dexFileOffset,
