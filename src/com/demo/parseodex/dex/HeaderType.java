@@ -1,4 +1,8 @@
-package com.demo.parseodex;
+package com.demo.parseodex.dex;
+
+import com.demo.parseodex.Utils;
+
+
 
 public class HeaderType {
 
@@ -36,31 +40,31 @@ public class HeaderType {
 
     @Override
     public String toString() {
-        return "magic:" + Utils.bytes2HexString(magic) + "\n" + "checksum:"
+        return "magic:" + Utils.bytesToHexString(magic) + "\n" + "checksum:"
                 + checksum + "\n" + "siganature:"
-                + Utils.bytes2HexString(siganature) + "\n" + "file_size:"
+                + Utils.bytesToHexString(siganature) + "\n" + "file_size:"
                 + file_size + "\n" + "header_size:" + header_size + "\n"
                 + "endian_tag:" + endian_tag + "\n" + "link_size:" + link_size
                 + "\n" + "link_off:"
-                + Utils.bytes2HexString(Utils.int2Byte(link_off)) + "\n"
-                + "map_off:" + Utils.bytes2HexString(Utils.int2Byte(map_off))
+                + Utils.bytesToHexString(Utils.int2Byte(link_off)) + "\n"
+                + "map_off:" + Utils.bytesToHexString(Utils.int2Byte(map_off))
                 + "\n" + "string_ids_size:" + string_ids_size + "\n"
                 + "string_ids_off:"
-                + Utils.bytes2HexString(Utils.int2Byte(string_ids_off)) + "\n"
+                + Utils.bytesToHexString(Utils.int2Byte(string_ids_off)) + "\n"
                 + "type_ids_size:" + type_ids_size + "\n" + "type_ids_off:"
-                + Utils.bytes2HexString(Utils.int2Byte(type_ids_off)) + "\n"
+                + Utils.bytesToHexString(Utils.int2Byte(type_ids_off)) + "\n"
                 + "proto_ids_size:" + proto_ids_size + "\n" + "proto_ids_off:"
-                + Utils.bytes2HexString(Utils.int2Byte(proto_ids_off)) + "\n"
+                + Utils.bytesToHexString(Utils.int2Byte(proto_ids_off)) + "\n"
                 + "field_ids_size:" + field_ids_size + "\n" + "field_ids_off:"
-                + Utils.bytes2HexString(Utils.int2Byte(field_ids_off)) + "\n"
+                + Utils.bytesToHexString(Utils.int2Byte(field_ids_off)) + "\n"
                 + "method_ids_size:" + method_ids_size + "\n"
                 + "method_ids_off:"
-                + Utils.bytes2HexString(Utils.int2Byte(method_ids_off)) + "\n"
+                + Utils.bytesToHexString(Utils.int2Byte(method_ids_off)) + "\n"
                 + "class_defs_size:" + class_defs_size + "\n"
                 + "class_defs_off:"
-                + Utils.bytes2HexString(Utils.int2Byte(class_defs_off)) + "\n"
+                + Utils.bytesToHexString(Utils.int2Byte(class_defs_off)) + "\n"
                 + "data_size:" + data_size + "\n" + "data_off:"
-                + Utils.bytes2HexString(Utils.int2Byte(data_off));
+                + Utils.bytesToHexString(Utils.int2Byte(data_off));
 
     }
 

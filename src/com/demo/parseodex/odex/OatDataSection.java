@@ -1,4 +1,4 @@
-package com.demo.parseodex;
+package com.demo.parseodex.odex;
 
 public class OatDataSection {
     public OatHeader oatHeader;

@@ -342,7 +342,7 @@ struct DexCode {
     u4  debugInfoOff;       /* file offset to debug info stream */
     u4  insnsSize;          /* size of the insns array, in u2 units */
     u2  insns[1];
-    /* followed by optional u2 padding */
+    /* followed by optional u2 padding */ 前面指令是奇数个，那么这个就是有效的，为了补齐位
     /* followed by try_item[triesSize] */
     /* followed by uleb128 handlersSize */
     /* followed by catch_handler_item[handlersSize] */

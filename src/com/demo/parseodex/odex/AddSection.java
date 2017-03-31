@@ -1,4 +1,6 @@
-package com.demo.parseodex;
+package com.demo.parseodex.odex;
+
+import com.demo.parseodex.Utils;
 
 
 /**

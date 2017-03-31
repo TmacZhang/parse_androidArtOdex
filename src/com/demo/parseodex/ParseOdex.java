@@ -1,8 +1,13 @@
 package com.demo.parseodex;
 
-import com.demo.parseodex.ElfType32.Elf32_Sym;
-import com.demo.parseodex.ElfType32.elf32_phdr;
-import com.demo.parseodex.ElfType32.elf32_shdr;
+import com.demo.parseodex.odex.AddSection;
+import com.demo.parseodex.odex.ElfType32;
+import com.demo.parseodex.odex.ElfType32.Elf32_Sym;
+import com.demo.parseodex.odex.ElfType32.elf32_phdr;
+import com.demo.parseodex.odex.ElfType32.elf32_shdr;
+import com.demo.parseodex.odex.ElfType64;
+
+
 
 
 public class ParseOdex {

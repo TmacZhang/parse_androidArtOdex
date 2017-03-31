@@ -2,12 +2,17 @@ package com.demo.parseodex;
 
 import java.io.File;
 
-import com.demo.parseodex.ElfType32.elf32_shdr;
-import com.demo.parseodex.ElfType64.elf64_shdr;
-import com.demo.parseodex.ElfType64.elf64_sym;
-import com.demo.parseodex.OatDataSection.DexFileInfo;
-import com.demo.parseodex.OatDataSection.OatClass;
-import com.demo.parseodex.OatDataSection.OatClassType;
+
+import com.demo.parseodex.dex.HeaderType;
+import com.demo.parseodex.odex.ElfType32;
+import com.demo.parseodex.odex.ElfType32.elf32_shdr;
+import com.demo.parseodex.odex.ElfType64;
+import com.demo.parseodex.odex.ElfType64.elf64_shdr;
+import com.demo.parseodex.odex.ElfType64.elf64_sym;
+import com.demo.parseodex.odex.OatDataSection;
+import com.demo.parseodex.odex.OatDataSection.DexFileInfo;
+import com.demo.parseodex.odex.OatDataSection.OatClass;
+import com.demo.parseodex.odex.OatDataSection.OatClassType;
 
 public class ParseOatFile {
     public static ElfType32 type_32 = new ElfType32();
@@ -16,7 +21,7 @@ public class ParseOatFile {
     private static final int SHT_DYNSYM  = 11;
 
     public static void main(String[] args) throws Exception {
-        byte[] fileByteArys = Utils.readFile("odex/oat.dex");
+        byte[] fileByteArys = Utils.readFile("odex/Vision_Calculator.odex");
         if (fileByteArys == null) {
             System.out.println("read file byte failed...");
             return;
@@ -162,7 +167,7 @@ public class ParseOatFile {
             dexFileInfo.methods_offsets_pointer[i] = Utils.byte2Int(Utils
                     .copyBytes(fileByteArys, methodsOffsets + 4 * i, 4))
                     + oatDataOffset;
-            if (i < 10) {
+            if (i < 965) {
                 System.out
                         .println("+++++++methods_offsets_pointer+++++++++++++");
                 System.out.println(Integer
