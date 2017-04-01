@@ -1,10 +1,22 @@
-package com.demo.parseodex.dex;
+package com.demo.parseodex;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.demo.parseodex.Utils;
+import com.demo.parseodex.dex.ClassDataItem;
+import com.demo.parseodex.dex.ClassDefItem;
+import com.demo.parseodex.dex.CodeItem;
+import com.demo.parseodex.dex.EncodedField;
+import com.demo.parseodex.dex.EncodedMethod;
+import com.demo.parseodex.dex.FieldIdsItem;
+import com.demo.parseodex.dex.HeaderType;
+import com.demo.parseodex.dex.MapItem;
+import com.demo.parseodex.dex.MapList;
+import com.demo.parseodex.dex.MethodIdsItem;
+import com.demo.parseodex.dex.ProtoIdsItem;
+import com.demo.parseodex.dex.StringIdsItem;
+import com.demo.parseodex.dex.TypeIdsItem;
 
 public class ParseDexUtils {
 
@@ -435,8 +447,10 @@ public class ParseDexUtils {
 
     /*************************** 解析代码内容 ***************************/
     public static void parseCode(byte[] srcByte) {
+        int i = 0;
         for (ClassDataItem item : dataItemList) {
-
+            System.out.println(" i  = " + i++ + "   dataItemList="
+                    + dataItemList.size());
             for (EncodedMethod item1 : item.direct_methods) {
                 int offset = Utils.decodeUleb128(item1.code_off);
                 CodeItem items = parseCodeItem(srcByte, offset);
@@ -447,12 +461,13 @@ public class ParseDexUtils {
             for (EncodedMethod item1 : item.virtual_methods) {
                 int offset = Utils.decodeUleb128(item1.code_off);
                 if (offset == 0) {
-                    // 抽象方法，没有方法体？
-                    return;
+                    // 抽象方法 接口，没有方法体？
+                    // return;
+                } else {
+                    CodeItem items = parseCodeItem(srcByte, offset);
+                    virtualMethodCodeItemList.add(items);
+                    System.out.println("virtual method item:" + items);
                 }
-                CodeItem items = parseCodeItem(srcByte, offset);
-                virtualMethodCodeItemList.add(items);
-                System.out.println("virtual method item:" + items);
             }
         }
     }
@@ -573,6 +588,7 @@ public class ParseDexUtils {
         byte[] classDataOffByte = Utils.copyByte(srcByte, 24, 4);
         item.class_data_off = Utils.byte2int(classDataOffByte);
         if (item.class_data_off == 0) {
+            // 抽象类，接口？
             return null;
         }
         System.out.println("class_data_off   == " + item.class_data_off);
