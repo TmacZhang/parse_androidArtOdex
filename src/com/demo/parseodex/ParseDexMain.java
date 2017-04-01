@@ -81,7 +81,10 @@ public class ParseDexMain {
 
         System.out.println("Parse Code Content:");
         ParseDexUtils.parseCode(srcByte);
+        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        System.out.println("Parse Code Content into Dalvik code:");
         System.out.println("++++++++++++++++end ++++++++++++++++++++++++++++++++++++++++");
+        ParseDexUtils.parseDalvikCode();
 
     }
 

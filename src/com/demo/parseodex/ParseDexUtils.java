@@ -17,6 +17,9 @@ import com.demo.parseodex.dex.MethodIdsItem;
 import com.demo.parseodex.dex.ProtoIdsItem;
 import com.demo.parseodex.dex.StringIdsItem;
 import com.demo.parseodex.dex.TypeIdsItem;
+import com.demo.parseodex.dex.utils.InstructionCodec;
+import com.demo.parseodex.dex.utils.InstructionPromoter;
+import com.demo.parseodex.dex.utils.InstructionReader;
 
 public class ParseDexUtils {
 
@@ -449,8 +452,6 @@ public class ParseDexUtils {
     public static void parseCode(byte[] srcByte) {
         int i = 0;
         for (ClassDataItem item : dataItemList) {
-            System.out.println(" i  = " + i++ + "   dataItemList="
-                    + dataItemList.size());
             for (EncodedMethod item1 : item.direct_methods) {
                 int offset = Utils.decodeUleb128(item1.code_off);
                 CodeItem items = parseCodeItem(srcByte, offset);
@@ -468,6 +469,10 @@ public class ParseDexUtils {
                     virtualMethodCodeItemList.add(items);
                     System.out.println("virtual method item:" + items);
                 }
+            }
+            i++;
+            if (i >= 1) {// 解析前1个ClassDataItem
+                return;
             }
         }
     }
@@ -641,6 +646,36 @@ public class ParseDexUtils {
          * String(byteAry, "UTF-8"); }catch(Exception e){ } return result;
          */
 
+    }
+
+    public static void parseDalvikCode() {
+        CodeItem codeItem = directMethodCodeItemList.get(0);
+        int index = 0;
+        short[] insns = codeItem.insns;
+        int insnsSize = codeItem.insns_size;
+
+        while (index < insnsSize) {
+            int opcode = InstructionCodec.byte0(insns[index]);
+            int length = InstructionCodec
+                    .getInstructionFormatLength(InstructionCodec
+                            .getInstructionFormat(opcode));
+            index += length;
+            System.out.println("opcode =" + Integer.toHexString(opcode)
+                    + " length = " + length);
+        }
+        System.out
+                .println("-----------------------------------------------------------------------");
+        InstructionPromoter instructionPromoter = new InstructionPromoter();
+        InstructionReader instructionReader = new InstructionReader(insns);
+        try {
+            instructionReader.accept(instructionPromoter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // for (CodeItem codeItem : virtualMethodCodeItemList) {
+        // short[] insns = codeItem.insns;
+        // int insnsSize = codeItem.insns_size;
+        // }
     }
 
 }
