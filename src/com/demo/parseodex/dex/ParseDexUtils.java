@@ -42,6 +42,7 @@ public class ParseDexUtils {
 
     // 这里的map用来存储code数据，因为一个ClassCode都是以SourceFile为单位的，所以这里的key就是SourceFileName来存储
     private static HashMap<String, ClassDefItem> classDataMap = new HashMap<String, ClassDefItem>();
+    private static List<ClassDefItem> classDataList = new ArrayList<ClassDefItem>();
 
     public static void praseDexHeader(byte[] byteSrc) {
         HeaderType headerType = new HeaderType();
@@ -294,30 +295,35 @@ public class ParseDexUtils {
         int idSize = ClassDefItem.getSize();
         int countIds = classIdsSize;
         for (int i = 0; i < countIds; i++) {
-            classIdsList.add(parseClassDefItem(Utils.copyByte(srcByte,
-                    classIdsOffset + i * idSize, idSize)));
+            ClassDefItem classDefItem = parseClassDefItem(Utils.copyByte(
+                    srcByte, classIdsOffset + i * idSize, idSize));
+            if (classDefItem != null) {
+                classIdsList.add(classDefItem);
+            }
         }
+
         for (ClassDefItem item : classIdsList) {
-            System.out.println("item:" + item);
+            // System.out.println("item:" + item);
             int classIdx = item.class_idx;
             TypeIdsItem typeItem = typeIdsList.get(classIdx);
-            System.out.println("classIdx:"
-                    + stringList.get(typeItem.descriptor_idx));
+            // System.out.println("classIdx:"
+            // + stringList.get(typeItem.descriptor_idx));
             int superClassIdx = item.superclass_idx;
             TypeIdsItem superTypeItem = typeIdsList.get(superClassIdx);
-            System.out.println("superitem:"
-                    + stringList.get(superTypeItem.descriptor_idx));
+            // System.out.println("superitem:"
+            // + stringList.get(superTypeItem.descriptor_idx));
             int sourceIdx = item.source_file_idx;
             String sourceFile = stringList.get(sourceIdx);
             System.out.println("sourceFile:" + sourceFile);
             classDataMap.put(sourceFile, item);
+            classDataList.add(item);
         }
     }
 
     /*************************** 解析ClassData ***************************/
     public static void parseClassData(byte[] srcByte) {
-        for (String key : classDataMap.keySet()) {
-            int dataOffset = classDataMap.get(key).class_data_off;
+        for (ClassDefItem classDefItem : classDataList) {
+            int dataOffset = classDefItem.class_data_off;
             System.out.println("data offset:"
                     + Utils.bytesToHexString(Utils.int2Byte(dataOffset)));
             ClassDataItem item = parseClassDataItem(srcByte, dataOffset);
@@ -419,7 +425,6 @@ public class ParseDexUtils {
             offset += instanceMethod.code_off.length;
             instanceMethodsAry[i] = instanceMethod;
         }
-
         item.static_fields = staticFieldAry;
         item.instance_fields = instanceFieldAry;
         item.direct_methods = staticMethodsAry;
@@ -441,11 +446,14 @@ public class ParseDexUtils {
 
             for (EncodedMethod item1 : item.virtual_methods) {
                 int offset = Utils.decodeUleb128(item1.code_off);
+                if (offset == 0) {
+                    // 抽象方法，没有方法体？
+                    return;
+                }
                 CodeItem items = parseCodeItem(srcByte, offset);
                 virtualMethodCodeItemList.add(items);
                 System.out.println("virtual method item:" + items);
             }
-
         }
     }
 
@@ -564,7 +572,10 @@ public class ParseDexUtils {
 
         byte[] classDataOffByte = Utils.copyByte(srcByte, 24, 4);
         item.class_data_off = Utils.byte2int(classDataOffByte);
-
+        if (item.class_data_off == 0) {
+            return null;
+        }
+        System.out.println("class_data_off   == " + item.class_data_off);
         byte[] staticValueOffByte = Utils.copyByte(srcByte, 28, 4);
         item.static_value_off = Utils.byte2int(staticValueOffByte);
         return item;

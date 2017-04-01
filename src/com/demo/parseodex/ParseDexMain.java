@@ -12,7 +12,7 @@ public class ParseDexMain {
         FileInputStream fis = null;
         ByteArrayOutputStream bos = null;
         try {
-            fis = new FileInputStream("dex/Hello.dex");
+            fis = new FileInputStream("odex/classes.dex");
             bos = new ByteArrayOutputStream();
             byte[] buffer = new byte[1024];
             int len = 0;
@@ -82,7 +82,7 @@ public class ParseDexMain {
 
         System.out.println("Parse Code Content:");
         ParseDexUtils.parseCode(srcByte);
-        System.out.println("++++++++++++++++++++++++++++++++++++++++");
+        System.out.println("++++++++++++++++end ++++++++++++++++++++++++++++++++++++++++");
 
     }
 

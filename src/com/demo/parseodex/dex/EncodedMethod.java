@@ -2,8 +2,6 @@ package com.demo.parseodex.dex;
 
 import com.demo.parseodex.Utils;
 
-
-
 public class EncodedMethod {
 
     /**

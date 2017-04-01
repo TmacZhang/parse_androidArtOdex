@@ -400,25 +400,28 @@ public final class Utils {
             return result;
         }
 
-        if (byteAry.length == 2) {
+        if (byteAry.length >= 2) {
             cur = byteAry[index];
             index++;
             result = (result & 0x7f) | ((cur & 0x7f) << 7);
-            return result;
+            if (byteAry.length == 2)
+                return result;
         }
 
-        if (byteAry.length == 3) {
+        if (byteAry.length >= 3) {
             cur = byteAry[index];
             index++;
             result |= (cur & 0x7f) << 14;
-            return result;
+            if (byteAry.length == 3)
+                return result;
         }
 
-        if (byteAry.length == 4) {
+        if (byteAry.length >= 4) {
             cur = byteAry[index];
             index++;
             result |= (cur & 0x7f) << 21;
-            return result;
+            if (byteAry.length == 4)
+                return result;
         }
 
         if (byteAry.length == 5) {
