@@ -1,1 +1,1 @@
-解析oat的odex文件,解析dex文件，解析AndroidO的vdex文件
+按照官方格式，解析oat的odex文件，解析dex文件，解析AndroidO的vdex文件。
